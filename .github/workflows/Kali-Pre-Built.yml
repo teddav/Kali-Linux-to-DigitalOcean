@@ -1,0 +1,35 @@
+name: Kali Pre-Built Qemu to .gz
+
+on:
+  workflow_dispatch:
+
+jobs:
+  kali-linux-pre-built:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Kali Linux Image
+        run: wget https://cdimage.kali.org/kali-2024.4/kali-linux-2024.4-qemu-amd64.7z
+
+      - name: Extract Image
+        run: |
+          7z x kali-linux-2024.4-qemu-amd64.7z
+          rm kali-linux-2024.4-qemu-amd64.7z
+          ls -la
+
+      - name: Compress Image to gzip
+        run: gzip --best kali-linux-2024.4-qemu-amd64.qcow2
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v1.0.1
+          files: ./kali-linux-2024.4-qemu-amd64.qcow2.gz
+          draft: false
+          prerelease: false
